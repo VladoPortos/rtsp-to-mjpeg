@@ -131,26 +131,26 @@ def generate_frames(stream_id: int) -> bytes:
         '-f', 'image2pipe',
         '-'
     ]
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=10**8)
-    data = b""
-    try:
-        while True:
-            chunk = p.stdout.read(4096)
-            if not chunk:
-                break
-            data += chunk
+    with subprocess.Popen(command, stdout=subprocess.PIPE, bufsize=-1) as p:
+        data = b""
+        try:
             while True:
-                start = data.find(b'\xff\xd8')
-                end = data.find(b'\xff\xd9', start + 2)
-                if start != -1 and end != -1:
-                    frame = data[start:end + 2]
-                    data = data[end + 2:]
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-                else:
+                chunk = p.stdout.read(4096)
+                if not chunk:
                     break
-    finally:
-        p.kill()
+                data += chunk
+                while True:
+                    start = data.find(b'\xff\xd8')
+                    end = data.find(b'\xff\xd9', start + 2)
+                    if start != -1 and end != -1:
+                        frame = data[start:end + 2]
+                        data = data[end + 2:]
+                        yield (b'--frame\r\n'
+                               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                    else:
+                        break
+        finally:
+            p.kill()
 
 
 @app.route('/video_feed/<int:stream_id>')
