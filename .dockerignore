@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+db.sqlite3
+.env
+*.git
+*.dockerignore
+Dockerfile
+README.md
+LICENSE
+docs
+tests
+*.egg-info/

@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    container_name: rtsp-to-mjpeg
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - stream-data:/app/data
+volumes:
+  stream-data:
